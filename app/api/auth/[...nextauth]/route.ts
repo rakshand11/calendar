@@ -14,13 +14,18 @@ const handler = NextAuth({
                 const client = await clientPromise;
                 const db = client.db();
 
+                const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
                 const record = await db.collection("otps").findOne({
                     email: credentials?.email,
                     otp: credentials?.otp,
+                    createdAt: { $gt: tenMinutesAgo },
                 });
 
                 if (!record) return null;
+
                 await db.collection("otps").deleteOne({ _id: record._id });
+
                 return { id: credentials!.email, email: credentials!.email };
             },
         }),
