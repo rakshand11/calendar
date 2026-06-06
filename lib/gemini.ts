@@ -10,4 +10,4 @@ export async function generateArticle(topic: string): Promise<string> {
     const result = await model.generateContent(prompt)
     const response = await result.response
     return response.text()
-}
+} 
