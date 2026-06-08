@@ -36,12 +36,12 @@ export default function DashboardPage() {
     });
 
     async function fetchArticles() {
-        // #region agent log
+
         fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:fetchArticles:start', message: 'fetchArticles called', data: {}, timestamp: Date.now(), hypothesisId: 'B' }) }).catch(() => { });
-        // #endregion
+
         const res = await fetch("/api/get-articles");
         const data = await res.json();
-        // #region agent log
+
         fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:fetchArticles:response', message: 'fetchArticles response', data: { status: res.status, ok: res.ok, articleCount: data.articles?.length ?? 0, sampleKeys: data.articles?.[0] ? Object.keys(data.articles[0]) : [], sampleScheduledAt: data.articles?.[0]?.scheduledAt, sampleScheduleAt: data.articles?.[0]?.scheduleAt }, timestamp: Date.now(), hypothesisId: 'B,D' }) }).catch(() => { });
         // #endregion
         setArticles(data.articles || []);
@@ -106,10 +106,10 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4">
+        <div className="min-h-screen bg-black p-4">
             <div className="rounded-2xl border border-gray-200 overflow-hidden h-[calc(100vh-2rem)] flex flex-col bg-white">
 
-                {/* Header */}
+
                 <div className="flex items-center gap-4 px-5 py-3 border-b border-gray-200">
                     <button
                         onClick={() => setCur(new Date(today.getFullYear(), today.getMonth(), 1))}
@@ -128,14 +128,14 @@ export default function DashboardPage() {
                     </button>
                 </div>
 
-                {/* Day names */}
+
                 <div className="grid grid-cols-7 border-b border-gray-200">
                     {DAYS.map(d => (
                         <div key={d} className="text-center text-xs text-gray-400 font-medium py-2 tracking-widest">{d}</div>
                     ))}
                 </div>
 
-                {/* Grid */}
+
                 <div className="grid grid-cols-7 flex-1 bg-white overflow-y-auto" style={{ gridTemplateRows: `repeat(${rows / 7}, minmax(80px, 1fr))` }}>
                     {cells.map((cell, i) => {
                         const isToday =
@@ -184,7 +184,7 @@ export default function DashboardPage() {
 
             </div>
 
-            {/* Dialog */}
+
             {showDialog && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
@@ -194,28 +194,28 @@ export default function DashboardPage() {
                                 <label className="text-sm text-gray-500 mb-1 block">Topic</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. Future of AI in healthcare"
+                                    placeholder="Search anything you want to know about"
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-gray-500 mb-1 block">Date</label>
+                                <label className="text-sm text-black mb-1 block">Date</label>
                                 <input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-gray-500 mb-1 block">Time</label>
+                                <label className="text-sm text-black mb-1 block">Time</label>
                                 <input
                                     type="time"
                                     value={time}
                                     onChange={(e) => setTime(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
                                 />
                             </div>
                         </div>
