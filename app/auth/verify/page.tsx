@@ -1,5 +1,5 @@
-import { Suspense } from "react";
-import { useState } from "react";
+"use client";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
