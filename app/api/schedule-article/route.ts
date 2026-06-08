@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        console.log("RECEIVED BODY:", body);
+        const session = await getServerSession(authOptions);
+        if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { topic, scheduledAt } = body;
+        const { topic, scheduledAt } = await req.json();
 
         if (!topic || !scheduledAt) {
-            console.log("MISSING FIELDS - topic:", topic, "scheduledAt:", scheduledAt);
-            return NextResponse.json(
-                { error: "Topic and scheduledAt are required" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Topic and scheduledAt are required" }, { status: 400 });
         }
 
         const client = await clientPromise;
@@ -24,15 +22,12 @@ export async function POST(req: NextRequest) {
             scheduledAt: new Date(scheduledAt),
             status: "pending",
             content: null,
+            userEmail: session.user?.email,
             createdAt: new Date(),
         });
 
-        return NextResponse.json({
-            message: "Article scheduled!",
-            id: result.insertedId,
-        });
+        return NextResponse.json({ message: "Article scheduled!", id: result.insertedId });
     } catch (error) {
-        console.error("SCHEDULE ARTICLE ERROR:", error);
         return NextResponse.json({ error: String(error) }, { status: 500 });
     }
 }

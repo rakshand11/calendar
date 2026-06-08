@@ -36,24 +36,15 @@ export default function DashboardPage() {
     });
 
     async function fetchArticles() {
-
-        fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:fetchArticles:start', message: 'fetchArticles called', data: {}, timestamp: Date.now(), hypothesisId: 'B' }) }).catch(() => { });
-
         const res = await fetch("/api/get-articles");
         const data = await res.json();
-
-        fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:fetchArticles:response', message: 'fetchArticles response', data: { status: res.status, ok: res.ok, articleCount: data.articles?.length ?? 0, sampleKeys: data.articles?.[0] ? Object.keys(data.articles[0]) : [], sampleScheduledAt: data.articles?.[0]?.scheduledAt, sampleScheduleAt: data.articles?.[0]?.scheduleAt }, timestamp: Date.now(), hypothesisId: 'B,D' }) }).catch(() => { });
-        // #endregion
         setArticles(data.articles || []);
     }
 
     useEffect(() => {
+        fetchArticles();
         const interval = setInterval(fetchArticles, 30000);
-        const timeout = setTimeout(fetchArticles, 0);
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
+        return () => clearInterval(interval);
     }, []);
 
     function getArticlesForDay(day: number) {
@@ -80,14 +71,9 @@ export default function DashboardPage() {
 
     async function handleSchedule() {
         if (!topic || !selectedDate || !time) return;
-
         const localDateTime = `${selectedDate}T${time}:00`;
-
-
         const localDate = new Date(localDateTime);
         const offset = localDate.getTimezoneOffset() * 60 * 1000;
-
-
         const scheduledAt = new Date(localDate.getTime() - offset);
 
         await fetch("/api/schedule-article", {
@@ -108,9 +94,8 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black p-4">
+        <div className="min-h-screen bg-gray-100 p-4">
             <div className="rounded-2xl border border-gray-200 overflow-hidden h-[calc(100vh-2rem)] flex flex-col bg-white">
-
 
                 <div className="flex items-center gap-4 px-5 py-3 border-b border-gray-200">
                     <button
@@ -119,8 +104,8 @@ export default function DashboardPage() {
                     >
                         Today
                     </button>
-                    <button onClick={() => setCur(new Date(year, month - 1, 1))} className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-500 text-lg leading-none">‹</button>
-                    <button onClick={() => setCur(new Date(year, month + 1, 1))} className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-500 text-lg leading-none">›</button>
+                    <button onClick={() => setCur(new Date(year, month - 1, 1))} className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 text-lg leading-none">‹</button>
+                    <button onClick={() => setCur(new Date(year, month + 1, 1))} className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-700 text-lg leading-none">›</button>
                     <h2 className="text-xl font-medium text-gray-800 flex-1">{MONTHS[month]} {year}</h2>
                     <button
                         onClick={() => openDialog(formatDateForInput(today.getFullYear(), today.getMonth(), today.getDate()))}
@@ -130,13 +115,11 @@ export default function DashboardPage() {
                     </button>
                 </div>
 
-
                 <div className="grid grid-cols-7 border-b border-gray-200">
-                    {DAYS.map(d => (
-                        <div key={d} className="text-center text-xs text-gray-400 font-medium py-2 tracking-widest">{d}</div>
+                    {DAYS.map((d) => (
+                        <div key={d} className="text-center text-xs text-gray-600 font-medium py-2 tracking-widest">{d}</div>
                     ))}
                 </div>
-
 
                 <div className="grid grid-cols-7 flex-1 bg-white overflow-y-auto" style={{ gridTemplateRows: `repeat(${rows / 7}, minmax(80px, 1fr))` }}>
                     {cells.map((cell, i) => {
@@ -164,18 +147,29 @@ export default function DashboardPage() {
                                 {cell && (
                                     <>
                                         <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full
-                      ${isToday ? "bg-blue-500 text-white" : cell.other ? "text-gray-300" : "text-gray-800"}`}>
+                      ${isToday ? "bg-blue-500 text-white" : cell.other ? "text-gray-400" : "text-gray-800"}`}>
                                             {cell.day}
                                         </span>
                                         {dayArticles.map((article) => (
-                                            <Link
-                                                key={article._id}
-                                                href={`/articles/${article._id}`}
-                                                onClick={(e) => e.stopPropagation()}
-                                                className={`text-xs px-2 py-1 rounded-md truncate font-medium ${getStatusStyle(article.status)}`}
-                                            >
-                                                {article.topic}
-                                            </Link>
+                                            <div key={article._id} className="flex items-center gap-1">
+                                                <Link
+                                                    href={`/articles/${article._id}`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className={`text-xs px-2 py-1 rounded-md truncate font-medium flex-1 ${getStatusStyle(article.status)}`}
+                                                >
+                                                    {article.topic}
+                                                </Link>
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        await fetch(`/api/delete-article?id=${article._id}`, { method: "DELETE" });
+                                                        fetchArticles();
+                                                    }}
+                                                    className="text-gray-400 hover:text-red-500 text-xs px-1 flex-shrink-0"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
                                         ))}
                                     </>
                                 )}
@@ -186,7 +180,6 @@ export default function DashboardPage() {
 
             </div>
 
-
             {showDialog && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
@@ -196,28 +189,28 @@ export default function DashboardPage() {
                                 <label className="text-sm text-gray-500 mb-1 block">Topic</label>
                                 <input
                                     type="text"
-                                    placeholder="Search anything you want to know about"
+                                    placeholder="e.g. Future of AI in healthcare"
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-black mb-1 block">Date</label>
+                                <label className="text-sm text-gray-500 mb-1 block">Date</label>
                                 <input
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-black mb-1 block">Time</label>
+                                <label className="text-sm text-gray-500 mb-1 block">Time</label>
                                 <input
                                     type="time"
                                     value={time}
                                     onChange={(e) => setTime(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-black outline-none focus:border-black"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-black"
                                 />
                             </div>
                         </div>
