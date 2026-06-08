@@ -3,6 +3,7 @@ import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ message: "Article scheduled!", id: result.insertedId });
     } catch (error) {
+        console.error("SCHEDULE ARTICLE ERROR:", error);
         return NextResponse.json({ error: String(error) }, { status: 500 });
     }
 }
