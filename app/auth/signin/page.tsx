@@ -27,12 +27,12 @@ export default function SignInPage() {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 outline-none focus:border-black"
+                    className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 mb-4 outline-none focus:border-black"
                 />
 
                 <button
                     onClick={handleSubmit}
-                    className="w-full bg-black text-black rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
+                    className="w-full bg-black text-white rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
                 >
                     Send OTP
                 </button>

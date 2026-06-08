@@ -26,11 +26,11 @@ function VerifyContent() {
                     placeholder="000000"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-4 outline-none focus:border-black text-center text-2xl tracking-widest"
+                    className="w-full border text-black border-gray-300 rounded-lg px-4 py-3 mb-4 outline-none focus:border-black text-center text-2xl tracking-widest"
                 />
                 <button
                     onClick={handleVerify}
-                    className="w-full bg-black text-white rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
+                    className="w-full text-white rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
                 >
                     Verify
                 </button>
