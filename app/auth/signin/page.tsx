@@ -20,7 +20,7 @@ export default function SignInPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-sm">
                 <h1 className="text-2xl font-bold mb-2">Sign in</h1>
-                <p className="text-gray-500 mb-6">Enter your email to get a code</p>
+                <p className="text-black mb-6">Enter your email to get a code</p>
 
                 <input
                     type="email"
@@ -32,7 +32,7 @@ export default function SignInPage() {
 
                 <button
                     onClick={handleSubmit}
-                    className="w-full bg-black text-white rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
+                    className="w-full bg-black text-black rounded-lg px-4 py-3 font-medium hover:bg-gray-800"
                 >
                     Send OTP
                 </button>

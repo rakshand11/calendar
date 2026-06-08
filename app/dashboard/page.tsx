@@ -80,20 +80,22 @@ export default function DashboardPage() {
 
     async function handleSchedule() {
         if (!topic || !selectedDate || !time) return;
-        const scheduledAt = new Date(`${selectedDate}T${time}:00`);
-        const body = { topic, scheduledAt };
 
-        fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:handleSchedule:request', message: 'schedule request body', data: { topic, scheduledAt: scheduledAt.toISOString() }, timestamp: Date.now(), hypothesisId: 'C' }) }).catch(() => { });
-        // #endregion
-        const res = await fetch("/api/schedule-article", {
+        const localDateTime = `${selectedDate}T${time}:00`;
+
+
+        const localDate = new Date(localDateTime);
+        const offset = localDate.getTimezoneOffset() * 60 * 1000;
+
+
+        const scheduledAt = new Date(localDate.getTime() - offset);
+
+        await fetch("/api/schedule-article", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
+            body: JSON.stringify({ topic, scheduledAt }),
         });
-        const result = await res.json();
 
-        fetch('http://127.0.0.1:7632/ingest/644d8814-dc14-4d22-9a06-2b45ea783de3', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'c535fb' }, body: JSON.stringify({ sessionId: 'c535fb', location: 'dashboard/page.tsx:handleSchedule:response', message: 'schedule response', data: { status: res.status, ok: res.ok, result }, timestamp: Date.now(), hypothesisId: 'C' }) }).catch(() => { });
-        // #endregion
         setShowDialog(false);
         fetchArticles();
     }
