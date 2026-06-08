@@ -71,10 +71,8 @@ export default function DashboardPage() {
 
     async function handleSchedule() {
         if (!topic || !selectedDate || !time) return;
-        const localDateTime = `${selectedDate}T${time}:00`;
-        const localDate = new Date(localDateTime);
-        const offset = localDate.getTimezoneOffset() * 60 * 1000;
-        const scheduledAt = new Date(localDate.getTime() - offset);
+
+        const scheduledAt = new Date(`${selectedDate}T${time}:00`);
 
         await fetch("/api/schedule-article", {
             method: "POST",
