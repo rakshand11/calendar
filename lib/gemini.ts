@@ -1,13 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMIN_API_KEY!)
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY!,
+});
 
 export async function generateArticle(topic: string): Promise<string> {
-    const model = genAI.getGenerativeModel({ model: "gemin-1.5-flash" })
+    const response = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            {
+                role: "user",
+                content: `Write a well-structured article about: ${topic}. Include an introduction, 3-4 main sections with headings, and a conclusion. Make it informative and engaging.`,
+            },
+        ],
+    });
 
-    const prompt = `Write a well-structured article about : ${topic}.Include an introduction , 3-4 main sections with headings, and a conclusion.Make it informative and engaging.`
-
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    return response.text()
-} 
+    return response.choices[0]?.message?.content || "";
+}

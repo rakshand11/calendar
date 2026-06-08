@@ -4,14 +4,25 @@ import { ObjectId } from "mongodb";
 export default async function ArticlePage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
+    const { id } = await params;
+
     const client = await clientPromise;
     const db = client.db();
 
-    const article = await db.collection("articles").findOne({
-        _id: new ObjectId(params.id),
-    });
+    let article = null;
+    try {
+        article = await db.collection("articles").findOne({
+            _id: new ObjectId(id),
+        });
+    } catch {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <p className="text-gray-500">Invalid article ID</p>
+            </div>
+        );
+    }
 
     if (!article) {
         return (
@@ -29,27 +40,18 @@ export default async function ArticlePage({
 
                 <div className="mb-6">
                     {article.status === "done" && (
-                        <span className="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                            Generated
-                        </span>
+                        <span className="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">Generated</span>
                     )}
                     {article.status === "pending" && (
-                        <span className="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">
-                            Scheduled — waiting to generate
-                        </span>
+                        <span className="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">Scheduled — waiting to generate</span>
                     )}
                     {article.status === "processing" && (
-                        <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                            Generating...
-                        </span>
+                        <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Generating...</span>
                     )}
                     {article.status === "failed" && (
-                        <span className="text-xs font-medium bg-red-100 text-red-700 px-3 py-1 rounded-full">
-                            Generation failed
-                        </span>
+                        <span className="text-xs font-medium bg-red-100 text-red-700 px-3 py-1 rounded-full">Generation failed</span>
                     )}
                 </div>
-
 
                 <p className="text-sm text-gray-400 mb-8">
                     Scheduled for:{" "}
