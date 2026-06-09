@@ -1,32 +1,40 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import clientPromise from "@/lib/mongodb";
 import { NextAuthOptions } from "next-auth";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
-            name: "OTP",
+            name: "Credentials",
             credentials: {
                 email: { label: "Email", type: "email" },
-                otp: { label: "OTP", type: "text" },
+                password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
                 const client = await clientPromise;
                 const db = client.db();
 
-                const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-                const record = await db.collection("otps").findOne({
+                const user = await db.collection("users").findOne({
                     email: credentials?.email,
-                    otp: credentials?.otp,
-                    createdAt: { $gt: tenMinutesAgo },
                 });
 
-                if (!record) return null;
 
-                await db.collection("otps").deleteOne({ _id: record._id });
+                if (!user) return null;
 
-                return { id: credentials!.email, email: credentials!.email };
+
+                if (!user.verified) return null;
+
+
+                const isValid = await bcrypt.compare(
+                    credentials!.password,
+                    user.password
+                );
+
+                if (!isValid) return null;
+
+                return { id: user._id.toString(), email: user.email };
             },
         }),
     ],
